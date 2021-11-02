@@ -4,6 +4,7 @@ import os
 from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
 import requests
+from urllib.parse import unquote, urljoin, urlparse
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -29,10 +30,14 @@ def parse_book_info(book_id, url_template='https://tululu.org/b{book_id}/'):
     book_header = soup.find('div', id='content').find('h1')
     title, author = book_header.text.split('::')
 
+    book_img = soup.find('div', class_='bookimage').find('img')
+    book_img_url = book_img['src']
+
     book_info = {
         'id': book_id,
         'title': title.strip(),
         'author': author.strip(),
+        'image_url': urljoin(response.url, book_img_url),
     }
 
     return book_info
@@ -49,6 +54,26 @@ def save_book(book_id, title, text, folder='books'):
         file_obj.write(text)
 
 
+def parse_filename(url):
+    file_path = unquote(urlparse(url).path)
+    return os.path.basename(file_path)
+
+
+def download_image(book_id, image_url, folder='images'):
+    response = requests.get(image_url)
+    response.raise_for_status()
+
+    os.makedirs(folder, exist_ok=True)
+    file_path = os.path.join(
+        folder,
+        parse_filename(image_url)
+    ) 
+
+    with open(file_path, 'wb') as file_obj:
+        file_obj.write(response.content)
+    return file_path
+
+
 def check_for_redirect(response):
     if response.status_code == 302:
         raise requests.HTTPError('Failed to load book: redirect detected '
@@ -60,10 +85,12 @@ def main():
         try:
             book_text = load_book(index)
             book_info = parse_book_info(index)
-
             save_book(index, book_info['title'], book_text)
-            logger.info(f'Save book {book_info["title"]} by'
+            logger.info(f'Save book {book_info["title"]} by '
                         f'{book_info["author"]} with ID {index}')
+            
+            cover_path = download_image(index, book_info['image_url'])
+            logger.info(f'Save book {index} cover to {cover_path}')            
         except requests.HTTPError as error:
             logger.error(error)
 
