@@ -10,9 +10,10 @@ logger = logging.getLogger(__name__)
 def load_book(book_id, url='https://tululu.org/txt.php'):
     params = {'id': book_id}
 
-    response = requests.get(url, params=params)
+    response = requests.get(url, params=params, allow_redirects=False)
     response.raise_for_status()  
-    return response.text  
+    check_for_redirect(response)
+    return response.text
 
 
 def save_book(book_id, text):
@@ -23,10 +24,20 @@ def save_book(book_id, text):
         file_obj.write(text)
 
 
+def check_for_redirect(response):
+    if response.status_code == 302:
+        raise requests.HTTPError('Failed to load book: redirect detected '
+                                 f'for url {response.url}''')
+
+
 def main():
     for index in range(1, 11):
-        book_text = load_book(index)
-        save_book(index, book_text)
+        try:
+            book_text = load_book(index)
+            save_book(index, book_text)
+            logger.info(f'Save book {index}')
+        except requests.HTTPError as error:
+            logger.error(error)
 
 
 if __name__ == '__main__':
