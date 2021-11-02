@@ -19,7 +19,7 @@ def save_book(book_id, text):
 
 
 def main():
-    for index in range(1, 10):
+    for index in range(1, 11):
         book_text = load_book(index)
         save_book(index, book_text)
 
