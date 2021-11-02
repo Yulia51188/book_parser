@@ -33,11 +33,16 @@ def parse_book_info(book_id, url_template='https://tululu.org/b{book_id}/'):
     book_img = soup.find('div', class_='bookimage').find('img')
     book_img_url = book_img['src']
 
+    comment_soups = soup.find_all('div', class_='texts')
+    comments = [comment_layout.find('span').text 
+                for comment_layout in comment_soups]
+
     book_info = {
         'id': book_id,
         'title': title.strip(),
         'author': author.strip(),
         'image_url': urljoin(response.url, book_img_url),
+        'comments': comments
     }
 
     return book_info
@@ -52,6 +57,25 @@ def save_book(book_id, title, text, folder='books'):
 
     with open(file_path, 'w') as file_obj:
         file_obj.write(text)
+
+
+def save_comments(book_info, folder='comments'):
+    if not any(book_info['comments']):
+        return None
+
+    os.makedirs(folder, exist_ok=True)
+    filename_template = 'Комментарии к {id}.{title}.txt'
+    file_path = os.path.join(
+        folder,
+        sanitize_filename(filename_template.format(
+            id=book_info['id'],
+            title=book_info['title'],
+        ))
+    )
+
+    with open(file_path, 'w') as file_obj:
+        file_obj.write('\n\n'.join(book_info['comments']))
+    return file_path
 
 
 def parse_filename(url):
@@ -85,9 +109,14 @@ def main():
         try:
             book_text = load_book(index)
             book_info = parse_book_info(index)
+                
             save_book(index, book_info['title'], book_text)
             logger.info(f'Save book {book_info["title"]} by '
                         f'{book_info["author"]} with ID {index}')
+
+            comment_path = save_comments(book_info)
+            if comment_path:
+                logger.info(f'Save book {index} comments to {comment_path}') 
             
             cover_path = download_image(index, book_info['image_url'])
             logger.info(f'Save book {index} cover to {cover_path}')            
