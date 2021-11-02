@@ -21,12 +21,7 @@ def load_book(book_id, url='https://tululu.org/txt.php'):
     return response.text
 
 
-def parse_book_info(book_id, url_template='https://tululu.org/b{book_id}/'):
-    response = requests.get(url_template.format(book_id=book_id))
-    response.raise_for_status()
-
-    soup = BeautifulSoup(response.text, 'lxml')
-
+def parse_book_page(soup):
     book_header_layout = soup.find('div', id='content').find('h1')
     title, author = book_header_layout.text.split('::')
 
@@ -41,13 +36,25 @@ def parse_book_info(book_id, url_template='https://tululu.org/b{book_id}/'):
     genre = genre_layout.text
 
     book_info = {
-        'id': book_id,
         'title': title.strip(),
         'author': author.strip(),
-        'image_url': urljoin(response.url, book_img_url),
+        'image_url': book_img_url,
         'comments': comments,
         'genre': genre,
     }
+
+    return book_info
+
+
+def parse_book_info(book_id, url_template='https://tululu.org/b{book_id}/'):
+    response = requests.get(url_template.format(book_id=book_id))
+    response.raise_for_status()
+
+    soup = BeautifulSoup(response.text, 'lxml')
+    book_info = parse_book_page(soup)
+
+    book_info['id'] = book_id
+    book_info['image_url'] = urljoin(response.url, book_info['image_url'])
 
     return book_info
 
@@ -115,7 +122,7 @@ def main():
             book_info = parse_book_info(index)
 
             logger.info(f'Book {book_info["title"]} genre is {book_info["genre"]}')
-            
+
             save_book(index, book_info['title'], book_text)
             logger.info(f'Save book {book_info["title"]} by '
                         f'{book_info["author"]} with ID {index}')
