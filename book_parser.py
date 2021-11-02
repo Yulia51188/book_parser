@@ -37,12 +37,16 @@ def parse_book_info(book_id, url_template='https://tululu.org/b{book_id}/'):
     comments = [comment_layout.find('span').text 
                 for comment_layout in comment_soups]
 
+    genre_layout = soup.find('span', class_='d_book').find('a')
+    genre = genre_layout.text
+
     book_info = {
         'id': book_id,
         'title': title.strip(),
         'author': author.strip(),
         'image_url': urljoin(response.url, book_img_url),
-        'comments': comments
+        'comments': comments,
+        'genre': genre,
     }
 
     return book_info
@@ -109,7 +113,9 @@ def main():
         try:
             book_text = load_book(index)
             book_info = parse_book_info(index)
-                
+
+            logger.info(f'Book {book_info["title"]} genre is {book_info["genre"]}')
+            
             save_book(index, book_info['title'], book_text)
             logger.info(f'Save book {book_info["title"]} by '
                         f'{book_info["author"]} with ID {index}')
