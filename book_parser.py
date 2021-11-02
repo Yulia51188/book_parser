@@ -27,11 +27,11 @@ def parse_book_info(book_id, url_template='https://tululu.org/b{book_id}/'):
 
     soup = BeautifulSoup(response.text, 'lxml')
 
-    book_header = soup.find('div', id='content').find('h1')
-    title, author = book_header.text.split('::')
+    book_header_layout = soup.find('div', id='content').find('h1')
+    title, author = book_header_layout.text.split('::')
 
-    book_img = soup.find('div', class_='bookimage').find('img')
-    book_img_url = book_img['src']
+    book_img_layout = soup.find('div', class_='bookimage').find('img')
+    book_img_url = book_img_layout['src']
 
     comment_soups = soup.find_all('div', class_='texts')
     comments = [comment_layout.find('span').text 
