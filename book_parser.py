@@ -65,7 +65,10 @@ def parse_book_page(soup):
 
 
 def parse_book_info(book_id, url_template='https://tululu.org/b{book_id}/'):
-    response = requests.get(url_template.format(book_id=book_id))
+    response = requests.get(
+        url_template.format(book_id=book_id),
+        allow_redirects=False
+    )
     response.raise_for_status()
     check_for_redirect(response)
 
@@ -95,7 +98,7 @@ def parse_filename(url):
 
 
 def download_image(book_id, image_url, folder='images'):
-    response = requests.get(image_url)
+    response = requests.get(image_url, allow_redirects=False)
     response.raise_for_status()
     check_for_redirect(response)
 
