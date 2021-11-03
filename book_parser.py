@@ -67,6 +67,7 @@ def parse_book_page(soup):
 def parse_book_info(book_id, url_template='https://tululu.org/b{book_id}/'):
     response = requests.get(url_template.format(book_id=book_id))
     response.raise_for_status()
+    check_for_redirect(response)
 
     soup = BeautifulSoup(response.text, 'lxml')
     book_info = parse_book_page(soup)
@@ -115,6 +116,7 @@ def parse_filename(url):
 def download_image(book_id, image_url, folder='images'):
     response = requests.get(image_url)
     response.raise_for_status()
+    check_for_redirect(response)
 
     os.makedirs(folder, exist_ok=True)
     file_path = os.path.join(
