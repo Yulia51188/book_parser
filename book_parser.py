@@ -50,15 +50,15 @@ def parse_book_page(soup):
     comments = [comment_layout.find('span').text 
                 for comment_layout in comment_soups]
 
-    genre_layout = soup.find('span', class_='d_book').find('a')
-    genre = genre_layout.text
+    genre_layouts = soup.find('span', class_='d_book').find_all('a')
+    genres = [genre_layout.text for genre_layout in genre_layouts]
 
     book_info = {
         'title': title.strip(),
         'author': author.strip(),
         'image_url': book_img_url,
         'comments': comments,
-        'genre': genre,
+        'genre': genres,
     }
 
     return book_info
