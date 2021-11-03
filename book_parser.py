@@ -19,12 +19,12 @@ def parse_arguments():
     parser.add_argument(
         'start_index',
         type=int,
-        help='start index to download books in index range from start to stop',
+        help='start index to download books in book ID range from start to stop',
     )
     parser.add_argument(
         'stop_index',
         type=int,
-        help='stop index to download books in index range from start to stop'
+        help='stop index to download books in book ID range from start to stop'
     )
     return parser.parse_args()
 
@@ -134,23 +134,23 @@ def check_for_redirect(response):
 
 
 def download_books(start_index, stop_index):
-    for index in range(start_index, stop_index + 1):
+    for book_id in range(start_index, stop_index + 1):
         try:
-            book_text = load_book(index)
-            book_info = parse_book_info(index)
+            book_text = load_book(book_id)
+            book_info = parse_book_info(book_id)
 
             logger.info(f'Book {book_info["title"]} genre is {book_info["genre"]}')
 
-            save_book(index, book_info['title'], book_text)
+            save_book(book_id, book_info['title'], book_text)
             logger.info(f'Save book {book_info["title"]} by '
-                        f'{book_info["author"]} with ID {index}')
+                        f'{book_info["author"]} with ID {book_id}')
 
             comment_path = save_comments(book_info)
             if comment_path:
-                logger.info(f'Save book {index} comments to {comment_path}') 
+                logger.info(f'Save book {book_id} comments to {comment_path}') 
             
-            cover_path = download_image(index, book_info['image_url'])
-            logger.info(f'Save book {index} cover to {cover_path}')            
+            cover_path = download_image(book_id, book_info['image_url'])
+            logger.info(f'Save book {book_id} cover to {cover_path}')            
         except requests.HTTPError as error:
             logger.error(error)
 
