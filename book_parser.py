@@ -114,7 +114,7 @@ def download_image(book_id, image_url, folder='images'):
 
 
 def check_for_redirect(response):
-    if response.status_code == 302:
+    if 300 <= response.status_code < 400:
         raise requests.HTTPError('Failed to load book: redirect detected '
                                  f'for url {response.url}''')
 
