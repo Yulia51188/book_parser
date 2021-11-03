@@ -89,25 +89,6 @@ def save_book(book_id, title, text, folder='books'):
         file_obj.write(text)
 
 
-def save_comments(book_info, folder='comments'):
-    if not any(book_info['comments']):
-        return None
-
-    os.makedirs(folder, exist_ok=True)
-    filename_template = 'Комментарии к {id}.{title}.txt'
-    file_path = os.path.join(
-        folder,
-        sanitize_filename(filename_template.format(
-            id=book_info['id'],
-            title=book_info['title'],
-        ))
-    )
-
-    with open(file_path, 'w') as file_obj:
-        file_obj.write('\n\n'.join(book_info['comments']))
-    return file_path
-
-
 def parse_filename(url):
     file_path = unquote(urlparse(url).path)
     return os.path.basename(file_path)
@@ -146,11 +127,7 @@ def download_books(start_index, stop_index):
             save_book(book_id, book_info['title'], book_text)
             logger.info(f'Save book {book_info["title"]} by '
                         f'{book_info["author"]} with ID {book_id}')
-
-            comment_path = save_comments(book_info)
-            if comment_path:
-                logger.info(f'Save book {book_id} comments to {comment_path}') 
-            
+        
             cover_path = download_image(book_id, book_info['image_url'])
             logger.info(f'Save book {book_id} cover to {cover_path}')            
         except requests.HTTPError as error:
