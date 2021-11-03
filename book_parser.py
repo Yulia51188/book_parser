@@ -1,11 +1,11 @@
 import argparse
 import logging
 import os
+from urllib.parse import unquote, urljoin, urlparse
 
+import requests
 from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
-import requests
-from urllib.parse import unquote, urljoin, urlparse
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
