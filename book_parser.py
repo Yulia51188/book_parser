@@ -115,8 +115,8 @@ def check_for_redirect(response):
                                  f'for url {response.url}''')
 
 
-def main():
-    for index in range(1, 11):
+def download_books(start_index, stop_index):
+    for index in range(start_index, stop_index + 1):
         try:
             book_text = load_book(index)
             book_info = parse_book_info(index)
@@ -135,6 +135,10 @@ def main():
             logger.info(f'Save book {index} cover to {cover_path}')            
         except requests.HTTPError as error:
             logger.error(error)
+
+
+def main():
+    download_books(1, 11)
 
 
 if __name__ == '__main__':
