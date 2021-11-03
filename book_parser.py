@@ -1,3 +1,4 @@
+import argparse
 import logging
 import os
 
@@ -9,6 +10,23 @@ from urllib.parse import unquote, urljoin, urlparse
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description='Download books in TXT format in your home library'
+    )
+    parser.add_argument(
+        'start_index',
+        type=int,
+        help='start index to download books in index range from start to stop',
+    )
+    parser.add_argument(
+        'stop_index',
+        type=int,
+        help='stop index to download books in index range from start to stop'
+    )
+    return parser.parse_args()
 
 
 def load_book(book_id, url='https://tululu.org/txt.php'):
@@ -138,7 +156,14 @@ def download_books(start_index, stop_index):
 
 
 def main():
-    download_books(1, 11)
+    args = parse_arguments()
+    if args.start_index < 1:
+        args.start_index = 0
+        logger.warning('Start index corrected to 1')
+    if args.stop_index < args.start_index:
+        raise ValueError('Input indexes range is wrong: '
+                         f'from {args.start_index} to {args.stop_index}')
+    download_books(args.start_index, args.stop_index)
 
 
 if __name__ == '__main__':
