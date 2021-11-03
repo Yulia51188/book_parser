@@ -158,7 +158,7 @@ def download_books(start_index, stop_index):
 def main():
     args = parse_arguments()
     if args.start_index < 1:
-        args.start_index = 0
+        args.start_index = 1
         logger.warning('Start index corrected to 1')
     if args.stop_index < args.start_index:
         raise ValueError('Input indexes range is wrong: '
