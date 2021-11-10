@@ -1,11 +1,9 @@
 import argparse
 import logging
-import os
-from urllib.parse import unquote, urljoin, urlparse
+from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
-from pathvalidate import sanitize_filename
 
 from book_parser import check_for_redirect
 
