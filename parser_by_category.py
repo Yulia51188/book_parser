@@ -29,7 +29,7 @@ def parse_arguments():
     parser.add_argument(
         '-p', '--pages_count',
         type=int,
-        default=1,
+        default=4,
         help='number of pages to parse',
     )
     return parser.parse_args()
