@@ -1,11 +1,12 @@
 import argparse
+import json
 import logging
-from urllib.parse import urljoin
+from urllib.parse import urljoin, unquote, urlparse
 
 import requests
 from bs4 import BeautifulSoup
 
-from book_parser import check_for_redirect
+import book_parser
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -39,7 +40,7 @@ def fetch_page_soup(url):
         allow_redirects=False
     )
     response.raise_for_status()
-    check_for_redirect(response)
+    book_parser.check_for_redirect(response)
 
     soup = BeautifulSoup(response.text, 'lxml')
 
@@ -53,13 +54,13 @@ def parse_book_urls(soup, root_url):
     return book_urls
 
 
-def parse_some_category_pages(url, count):
+def parse_some_category_pages(category_url, count):
     if count == 1:
         page_urls = []
     else:
-        page_urls = [urljoin(url, f'{page_index}')
+        page_urls = [urljoin(category_url, f'{page_index}')
                      for page_index in range(2, count + 1)]
-    page_urls.insert(0, url)
+    page_urls.insert(0, category_url)
 
     book_urls = []
     for page_url in page_urls:
@@ -68,11 +69,46 @@ def parse_some_category_pages(url, count):
     return book_urls
 
 
+def get_book_id_from_url(url):
+    id_string = unquote(urlparse(url).path)
+    book_id = (
+        id_string
+        .replace('/', '')
+        .replace('b', '')
+    )
+    return book_id
+
+
+def download_books_by_urls(book_urls):
+    book_ids = [get_book_id_from_url(url) for url in book_urls]
+
+    library = []
+    for index, book_id in enumerate(book_ids, start=1):
+        try:
+            book_text = book_parser.load_book(book_id)
+            book_info = book_parser.parse_book_info(book_id)
+            library.append(book_info)
+
+            book_parser.save_book(book_id, book_info['title'], book_text)
+        
+            book_parser.download_image(
+                book_id,
+                book_info['image_url']
+            )
+            logger.info(f'Download {book_info["title"]} {index}/{len(book_ids)}')            
+        except requests.HTTPError as error:
+            logger.error(error)
+    return library
+
+
 def main():
     args = parse_arguments()
+
     book_urls = parse_some_category_pages(args.category_url, args.pages_count)
-    for index, url in enumerate(book_urls, start=1):
-        print(f'{index}. {url}')
+    library = download_books_by_urls(book_urls)
+
+    with open("library.json", "w") as write_file:
+        json.dump(library, write_file, ensure_ascii=False, indent=4)
 
 
 if __name__ == '__main__':
