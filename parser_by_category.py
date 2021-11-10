@@ -43,15 +43,19 @@ def fetch_page_soup(url):
 
 
 def parse_book_urls(soup, root_url):
-    book_url_soup = soup.find('table', class_='d_book').find('a')
-    return urljoin(root_url, book_url_soup['href'])
+    book_card_soups = soup.find_all('table', class_='d_book')
+    book_urls = [urljoin(root_url, book_soup.find('a')['href'])
+                 for book_soup in book_card_soups]
+    return book_urls
 
 
 def main():
     args = parse_arguments()
     print(args.category_url)
     soup = fetch_page_soup(args.category_url)
-    print(parse_book_urls(soup, TULULU_URL))
+    urls = parse_book_urls(soup, TULULU_URL)
+    for index, url in enumerate(urls):
+        print(f'{index}. {url}')
 
 
 if __name__ == '__main__':
