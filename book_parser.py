@@ -46,12 +46,11 @@ def parse_book_page(soup):
 
     book_img_selector = '.bookimage img'
     book_img_layout = soup.select_one(book_img_selector)
-    logger.info(book_img_layout)
     book_img_url = book_img_layout['src']
 
-    comment_soups = soup.find_all('div', class_='texts')
-    comments = [comment_layout.find('span').text 
-                for comment_layout in comment_soups]
+    comments_selector = 'div.texts span'
+    comment_soups = soup.select(comments_selector)
+    comments = [comment_layout.text for comment_layout in comment_soups]
 
     genre_layouts = soup.find('span', class_='d_book').find_all('a')
     genres = [genre_layout.text for genre_layout in genre_layouts]
