@@ -48,9 +48,11 @@ def fetch_page_soup(url):
 
 
 def parse_book_urls(soup, root_url):
-    book_card_soups = soup.find_all('table', class_='d_book')
-    book_urls = [urljoin(root_url, book_soup.find('a')['href'])
-                 for book_soup in book_card_soups]
+    book_urls_selector = '.ow_px_td table.d_book .bookimage a:first-child'
+    book_links = soup.select(book_urls_selector) 
+
+    book_urls = [urljoin(root_url, link_tag['href'])
+                 for link_tag in book_links]
     return book_urls
 
 
