@@ -85,6 +85,7 @@ def download_books_by_urls(book_urls):
     book_ids = [get_book_id_from_url(url) for url in book_urls]
 
     library = []
+    books_count = len(book_ids)
     for index, book_id in enumerate(book_ids, start=1):
         try:
             book_text = book_parser.load_book(book_id)
@@ -97,7 +98,7 @@ def download_books_by_urls(book_urls):
                 book_id,
                 book_info['image_url']
             )
-            logger.info(f'Download {book_info["title"]} {index}/{len(book_ids)}')            
+            logger.info(f'Download {book_info["title"]} {index}/{books_count}')            
         except requests.HTTPError as error:
             logger.error(error)
     return library
