@@ -40,7 +40,8 @@ def load_book(book_id, url='https://tululu.org/txt.php'):
 
 
 def parse_book_page(soup):
-    book_header_layout = soup.find('div', id='content').find('h1')
+    book_header_selector = 'div[id=content] h1'
+    book_header_layout = soup.select_one(book_header_selector)
     title, author = book_header_layout.text.split('::')
 
     book_img_layout = soup.find('div', class_='bookimage').find('img')
