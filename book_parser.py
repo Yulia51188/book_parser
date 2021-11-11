@@ -84,12 +84,24 @@ def parse_book_info(book_id, url_template='https://tululu.org/b{book_id}/'):
     return book_info
 
 
-def save_book(book_id, title, text, folder='books'):
-    os.makedirs(folder, exist_ok=True)
-    file_path = os.path.join(
-        folder,
+def get_file_path(root_path, folder_name, filename):
+    if root_path:
+        os.makedirs(
+            os.path.join(root_path, folder_name),
+            exist_ok=True
+        ) 
+        return os.path.join(root_path, folder_name, filename)
+    
+    os.makedirs(folder_name, exist_ok=True)
+    return os.path.join(folder_name, filename)
+
+
+def save_book(book_id, title, text, root_path, folder_name='books'):
+    file_path = get_file_path(
+        root_path,
+        folder_name,
         sanitize_filename(f'{book_id}. {title}.txt')
-    ) 
+    )
 
     with open(file_path, 'w') as file_obj:
         file_obj.write(text)
@@ -100,17 +112,17 @@ def parse_filename(url):
     return os.path.basename(file_path)
 
 
-def download_image(book_id, image_url, folder='images'):
+def download_image(book_id, image_url, root_path, folder_name='images'):
     response = requests.get(image_url, allow_redirects=False)
     response.raise_for_status()
     check_for_redirect(response)
 
-    os.makedirs(folder, exist_ok=True)
-    file_path = os.path.join(
-        folder,
+    file_path = get_file_path(
+        root_path,
+        folder_name,
         parse_filename(image_url)
-    ) 
-
+    )
+    
     with open(file_path, 'wb') as file_obj:
         file_obj.write(response.content)
     return file_path

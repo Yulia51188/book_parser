@@ -55,6 +55,11 @@ def parse_arguments():
         type=str,
         help='path to save JSON file with downloaded books info',
     )
+    parser.add_argument(
+        '--dest_folder',
+        type=str,
+        help='path to save downloaded files (txt files, covers, book info)',        
+    )
     return parser.parse_args()
 
 
@@ -120,8 +125,12 @@ def get_book_id_from_url(url):
     return book_id
 
 
-def download_books_by_urls(book_urls, skip_txt, skip_images):
+def download_books_by_urls(book_urls, skip_txt, skip_images, folder_path):
     book_ids = [get_book_id_from_url(url) for url in book_urls]
+
+    if folder_path and not(skip_txt and skip_images):
+        '''Create new folder only if is need to download text files or images'''
+        os.makedirs(folder_path, exist_ok=True)
 
     library = []
     books_count = len(book_ids)
@@ -132,12 +141,18 @@ def download_books_by_urls(book_urls, skip_txt, skip_images):
             library.append(book_info)
 
             if not skip_txt:
-                book_parser.save_book(book_id, book_info['title'], book_text)
+                book_parser.save_book(
+                    book_id,
+                    book_info['title'],
+                    book_text,
+                    folder_path,
+                )
         
             if not skip_images:
                 book_parser.download_image(
                     book_id,
-                    book_info['image_url']
+                    book_info['image_url'],
+                    folder_path,
                 )
             
             logger.info(f'Download {book_info["title"]} {index}/{books_count}')            
@@ -176,10 +191,11 @@ def main():
     library = download_books_by_urls(
         book_urls,
         args.skip_txt,
-        args.skip_images
+        args.skip_images,
+        args.dest_folder
     ) 
     
-    result_path = save_books_catalogue(library, args.json_path)
+    result_path = save_books_catalogue(library, args.json_path or args.dest_folder)
     logger.info(f'Books info saved as {result_path}')
 
 
