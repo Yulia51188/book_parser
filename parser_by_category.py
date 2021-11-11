@@ -1,6 +1,7 @@
 import argparse
 import json
 import logging
+import os
 from urllib.parse import urljoin, unquote, urlparse
 
 import requests
@@ -25,6 +26,7 @@ def parse_arguments():
         type=str,
         help='genre (category) page url',
     )
+    
     parser.add_argument(
         '-s', '--start_page',
         type=int,
@@ -48,6 +50,11 @@ def parse_arguments():
         help="if set - the script doesn't download book txt files"
     )
 
+    parser.add_argument(
+        '--json_path',
+        type=str,
+        help='path to save JSON file with downloaded books info',
+    )
     return parser.parse_args()
 
 
@@ -139,6 +146,18 @@ def download_books_by_urls(book_urls, skip_txt, skip_images):
     return library
 
 
+def save_books_catalogue(books_catalogue, folder_path, filename='library.json'):
+    if folder_path:
+        os.makedirs(folder_path, exist_ok=True)
+        result_path = os.path.join(folder_path, filename)
+    else:
+        result_path = filename
+
+    with open(result_path, "w") as write_file:
+        json.dump(books_catalogue, write_file, ensure_ascii=False, indent=4)    
+    return result_path
+
+
 def main():
     args = parse_arguments()
 
@@ -159,9 +178,9 @@ def main():
         args.skip_txt,
         args.skip_images
     ) 
-
-    with open("library.json", "w") as write_file:
-        json.dump(library, write_file, ensure_ascii=False, indent=4)
+    
+    result_path = save_books_catalogue(library, args.json_path)
+    logger.info(f'Books info saved as {result_path}')
 
 
 if __name__ == '__main__':
