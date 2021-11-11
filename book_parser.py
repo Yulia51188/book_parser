@@ -44,7 +44,9 @@ def parse_book_page(soup):
     book_header_layout = soup.select_one(book_header_selector)
     title, author = book_header_layout.text.split('::')
 
-    book_img_layout = soup.find('div', class_='bookimage').find('img')
+    book_img_selector = '.bookimage img'
+    book_img_layout = soup.select_one(book_img_selector)
+    logger.info(book_img_layout)
     book_img_url = book_img_layout['src']
 
     comment_soups = soup.find_all('div', class_='texts')
