@@ -36,6 +36,18 @@ def parse_arguments():
         type=int,
         help='number of pages to parse',
     )
+
+    parser.add_argument(
+        '-si', '--skip_images',
+        action='store_true',
+        help="if set - the script doesn't download book cover images"
+    )
+    parser.add_argument(
+        '-st', '--skip_txt',
+        action='store_true',
+        help="if set - the script doesn't download book txt files"
+    )
+
     return parser.parse_args()
 
 
@@ -101,7 +113,7 @@ def get_book_id_from_url(url):
     return book_id
 
 
-def download_books_by_urls(book_urls):
+def download_books_by_urls(book_urls, skip_txt, skip_images):
     book_ids = [get_book_id_from_url(url) for url in book_urls]
 
     library = []
@@ -112,12 +124,15 @@ def download_books_by_urls(book_urls):
             book_info = book_parser.parse_book_info(book_id)
             library.append(book_info)
 
-            book_parser.save_book(book_id, book_info['title'], book_text)
+            if not skip_txt:
+                book_parser.save_book(book_id, book_info['title'], book_text)
         
-            book_parser.download_image(
-                book_id,
-                book_info['image_url']
-            )
+            if not skip_images:
+                book_parser.download_image(
+                    book_id,
+                    book_info['image_url']
+                )
+            
             logger.info(f'Download {book_info["title"]} {index}/{books_count}')            
         except requests.HTTPError as error:
             logger.error(error)
@@ -139,7 +154,11 @@ def main():
         args.start_page,
         args.end_page
     )
-    library = download_books_by_urls(book_urls)
+    library = download_books_by_urls(
+        book_urls,
+        args.skip_txt,
+        args.skip_images
+    ) 
 
     with open("library.json", "w") as write_file:
         json.dump(library, write_file, ensure_ascii=False, indent=4)
