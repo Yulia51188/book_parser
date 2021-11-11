@@ -52,7 +52,8 @@ def parse_book_page(soup):
     comment_soups = soup.select(comments_selector)
     comments = [comment_layout.text for comment_layout in comment_soups]
 
-    genre_layouts = soup.find('span', class_='d_book').find_all('a')
+    genre_selector = 'span.d_book a'
+    genre_layouts = soup.select(genre_selector)
     genres = [genre_layout.text for genre_layout in genre_layouts]
 
     book_info = {
