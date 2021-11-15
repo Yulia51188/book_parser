@@ -2,7 +2,7 @@ import argparse
 import json
 import logging
 import os
-from urllib.parse import urljoin, unquote, urlparse
+from urllib.parse import unquote, urljoin, urlparse
 
 import requests
 from bs4 import BeautifulSoup
