@@ -7,8 +7,6 @@ import requests
 from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -153,6 +151,11 @@ def download_books(start_index, stop_index):
 
 
 def main():
+    logging.basicConfig(
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        level=logging.INFO
+    )
+
     args = parse_arguments()
     if args.start_index < 1:
         args.start_index = 1
@@ -160,6 +163,7 @@ def main():
     if args.stop_index < args.start_index:
         raise ValueError('Input indexes range is wrong: '
                          f'from {args.start_index} to {args.stop_index}')
+    
     download_books(args.start_index, args.stop_index)
 
 

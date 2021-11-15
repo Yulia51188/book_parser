@@ -9,8 +9,6 @@ from bs4 import BeautifulSoup
 
 import book_parser
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 TULULU_URL = 'https://tululu.org/'
@@ -174,6 +172,11 @@ def save_books_catalogue(books_catalogue, folder_path, filename='library.json'):
 
 
 def main():
+    logging.basicConfig(
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        level=logging.INFO
+    )
+
     args = parse_arguments()
 
     if args.start_page < 1:
