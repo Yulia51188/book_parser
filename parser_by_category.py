@@ -91,7 +91,7 @@ def parse_max_page(category_url):
     return int(max_page.text)
 
 
-def parse_some_category_pages(category_url, start_page, end_page):
+def parse_category_pages(category_url, start_page, end_page):
     max_page_index = parse_max_page(category_url)
 
     if start_page > max_page_index:
@@ -186,7 +186,7 @@ def main():
         raise ValueError('Input page indexes range is wrong: '
                          f'from {args.start_page} to {args.end_page}')
 
-    book_urls = parse_some_category_pages(
+    book_urls = parse_category_pages(
         args.category_url,
         args.start_page,
         args.end_page
