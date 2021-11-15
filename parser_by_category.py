@@ -103,7 +103,7 @@ def parse_category_pages(category_url, start_page, end_page):
         logger.warning('Correct input end page index to maximum available - '
                        f'{end_page}')
 
-    page_urls = [urljoin(category_url, f'{page_index}')
+    page_urls = [urljoin(category_url, str(page_index))
                  for page_index in range(start_page, end_page + 1)]    
 
     book_urls = []
