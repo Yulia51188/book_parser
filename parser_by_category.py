@@ -127,7 +127,6 @@ def download_books_by_urls(book_urls, skip_txt, skip_images, folder_path):
     book_ids = [get_book_id_from_url(url) for url in book_urls]
 
     if folder_path and not(skip_txt and skip_images):
-        '''Create new folder only if is need to download text files or images'''
         os.makedirs(folder_path, exist_ok=True)
 
     library = []
